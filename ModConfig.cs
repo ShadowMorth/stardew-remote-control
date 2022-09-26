@@ -43,17 +43,14 @@ namespace RemoteControl
                 return;
             }
 
-            foreach (Farmer farmer in getAllPlayers())
-            {
-                Monitor.Log($"Assigning first farmer {farmer}", LogLevel.Debug);
-                Monitor.Log($"{farmer.UniqueMultiplayerID} = farmhand id", LogLevel.Debug);
-                Monitor.Log($"{farmer.Name} = farmhand name", LogLevel.Debug);
+            Farmer farmer = Game1.getAllFarmers().First();
 
-                json.shouldAssignAdminToFirstCabinFarmer = false;
-                addAdmin(farmer);   // This will save both settings
+            Monitor.Log($"Assigning first farmer {farmer}", LogLevel.Debug);
+            Monitor.Log($"{farmer.UniqueMultiplayerID} = farmhand id", LogLevel.Debug);
+            Monitor.Log($"{farmer.Name} = farmhand name", LogLevel.Debug);
 
-                break;
-            }
+            json.shouldAssignAdminToFirstCabinFarmer = false;
+            addAdmin(farmer);   // This will save both settings
         }
 
         // Add an admin

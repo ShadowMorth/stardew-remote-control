@@ -59,34 +59,40 @@ namespace RemoteControl.Commands
         private void listPlayers(Farmer fromPlayer, string args)
         {
             publishPrivateMessage(fromPlayer, "Player list:");
-            foreach (Farmer farmer in getAllPlayers())
+            foreach (Farmer farmer in Game1.getAllFarmers())
             {
                 publishPrivateMessage(fromPlayer, $"- {farmer.Name} ({farmer.UniqueMultiplayerID}), {(farmer.isActive() ? "online" : "offline")}");
             }
         }
 
+#warning - this likely breaks in 1.6
         private void buildCabin(Farmer fromPlayer, string args)
         {
-            // Take a random pick by default
-            string[] cabinTypes = { "Plank", "Log", "Stone" };
-            string cabinType = cabinTypes[(new Random()).Next(cabinTypes.Length)];
-
-            if (args.ToLower() == "log")
+            var argsSpan = args.AsSpan().Trim();
+            string cabinType;
+            if (argsSpan.Equals("log", StringComparison.InvariantCultureIgnoreCase))
             {
                 cabinType = "Log";
             }
-            else if (args.ToLower() == "stone")
+            else if (argsSpan.Equals("stone", StringComparison.InvariantCultureIgnoreCase))
             {
                 cabinType = "Stone";
             }
-            else if (args.ToLower() == "plank")
+            else if (argsSpan.Equals("plank", StringComparison.InvariantCultureIgnoreCase))
             {
                 cabinType = "Plank";
             }
-
-            if (Game1.getFarm().buildStructure(new BluePrint($"{cabinType} Cabin"), new Vector2((float)(fromPlayer.getTileX() + 1), (float)fromPlayer.getTileY()), Game1.player))
+            else
             {
-                Game1.getFarm().buildings.Last<Building>().daysOfConstructionLeft.Value = 0;
+                // Take a random pick by default
+                string[] cabinTypes = { "Plank", "Log", "Stone" };
+                cabinType = cabinTypes[Game1.random.Next(cabinTypes.Length)];
+            }
+
+            Farm farm = Game1.getFarm();
+            if (farm.buildStructure(new BluePrint($"{cabinType} Cabin"), new Vector2((float)(fromPlayer.getTileX() + 1), (float)fromPlayer.getTileY()), Game1.player))
+            {
+                farm.buildings.Last().daysOfConstructionLeft.Value = 0;
                 publishSystemMessage("Cabin created");
             }
             else

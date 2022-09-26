@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Harmony;
+
+using HarmonyLib;
+
 using RemoteControl.Commands;
+
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+
 using StardewValley;
+
 using static RemoteControl.Utilities;
 
 namespace RemoteControl
@@ -30,7 +34,7 @@ namespace RemoteControl
             helper.Events.GameLoop.OneSecondUpdateTicked += this.OnOneSecondUpdateTicked;
             helper.Events.GameLoop.Saved += this.OnSaved;
 
-            var harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
+            Harmony harmony = new (this.ModManifest.UniqueID);
 
             harmony.Patch(
                original: AccessTools.Method(typeof(StardewValley.Menus.ChatBox), nameof(StardewValley.Menus.ChatBox.receiveChatMessage)),
@@ -53,11 +57,17 @@ namespace RemoteControl
             Config.assignFirstAdminIfNeeded();
 
             // Process chat messages that came in
-            foreach (ChatMessage chatMessage in chatMessages.ToList())
+            foreach (ChatMessage chatMessage in chatMessages)
             {
                 if (chatMessage.chatKind == ChatMessage.ChatKinds.ChatMessage || chatMessage.chatKind == ChatMessage.ChatKinds.PrivateMessage)
                 {
                     Farmer farmer = getFarmer(chatMessage.sourceFarmer);
+
+                    if (farmer is null)
+                    {
+                        this.Monitor.Log($"{chatMessage.sourceFarmer} not found!", LogLevel.Info);
+                        continue;
+                    }
 
                     hostCommands.ParseCommand(farmer, chatMessage.message);
                     adminCommands.ParseCommand(farmer, chatMessage.message);
