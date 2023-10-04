@@ -57,7 +57,8 @@ namespace RemoteControl
             Config.assignFirstAdminIfNeeded();
 
             // Process chat messages that came in
-            foreach (ChatMessage chatMessage in chatMessages)
+            List<ChatMessage> messagesCopy = new List<ChatMessage>(chatMessages);
+            foreach (ChatMessage chatMessage in messagesCopy)
             {
                 if (chatMessage.chatKind == ChatMessage.ChatKinds.ChatMessage || chatMessage.chatKind == ChatMessage.ChatKinds.PrivateMessage)
                 {
@@ -73,9 +74,7 @@ namespace RemoteControl
                     adminCommands.ParseCommand(farmer, chatMessage.message);
                     userCommands.ParseCommand(farmer, chatMessage.message);
                 }
-                
             }
-
             chatMessages.Clear();
         }
 
